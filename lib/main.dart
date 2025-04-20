@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:japanese_lyrics_app/components/main_scaffold.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:hive/hive.dart';
-import 'routes/search/search_screen.dart';
 import 'package:japanese_lyrics_app/models/song.dart';
 
 void main() async {
@@ -32,7 +31,7 @@ class JapLyricsApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SearchScreen(),
+      home: const MainScaffold(),
     );
   }
 }
