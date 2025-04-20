@@ -1,9 +1,10 @@
-// lib/routes/search/search_screen.dart
 import 'package:flutter/material.dart';
-import 'package:japanese_lyrics_app/components/custom_search_bar.dart';
-import 'package:japanese_lyrics_app/components/song_tile.dart';
-import 'package:japanese_lyrics_app/models/song.dart';
-import 'search_controller.dart'; // Import kontroléru
+import '../../components/custom_search_bar.dart';
+import '../../components/song_tile.dart';
+import '../../models/song.dart';
+import 'search_controller.dart';
+import '../../database/hive_repository.dart';
+import '../library/library_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -13,7 +14,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  // Stavové proměnné pro načtená data a indikační stav
   List<Song> searchResults = [];
   bool isLoading = false;
 
@@ -22,18 +22,29 @@ class _SearchScreenState extends State<SearchScreen> {
       isLoading = true;
     });
 
-    // Použijeme funkcí z controlleru pro načtení písniček
+    // Načtení písniček pomocí controlleru
     final results = await fetchSongs(query);
-
     setState(() {
       searchResults = results;
       isLoading = false;
     });
   }
 
-  void _onSongTap(Song song) {
-    // Při kliknutí vypíšeme do konzole, později přidáme uložení do knihovny a detail
-    print('Vybraná píseň: ${song.title} - ${song.artist}');
+  void _onSongTap(Song song) async {
+    // Uložení vybrané písně do lokální knihovny pomocí HiveRepository
+    final repository = HiveRepository();
+    await repository.addSong(song);
+
+    // Zobrazíme potvrzovací zprávu
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Píseň "${song.title}" byla přidána do knihovny.')),
+    );
+
+    // Přejdeme na stránku knihovny
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LibraryScreen()),
+    );
   }
 
   @override
@@ -46,7 +57,6 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            // Předáváme callback onSearch do SearchBar komponenty
             child: CustomSearchBar(
               onSearch: _performSearch,
             ),
@@ -55,9 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : searchResults.isEmpty
-                    ? const Center(
-                        child: Text('Zadejte název písně pro vyhledávání...'),
-                      )
+                    ? const Center(child: Text('Zadejte název písně pro vyhledávání...'))
                     : ListView.builder(
                         itemCount: searchResults.length,
                         itemBuilder: (context, index) {

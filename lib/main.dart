@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:hive/hive.dart';
 import 'routes/search/search_screen.dart';
+import 'package:japanese_lyrics_app/models/song.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializace Hive
+  final appDocDir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(appDocDir.path);
+
+  // Registrace adapteru
+  Hive.registerAdapter(SongAdapter());
+  
+  // Otevření boxu
+  await Hive.openBox<Song>('library');
+  
   runApp(const JapLyricsApp());
 }
 
