@@ -31,6 +31,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _onSongTap(Song song) async {
+    // vyhledání detailů písně
+    final lyrics = await fetchLyrics(song.url);
+    song.lyrics = lyrics;
+
     // Uložení vybrané písně do lokální knihovny pomocí HiveRepository
     final repository = HiveRepository();
     await repository.addSong(song);

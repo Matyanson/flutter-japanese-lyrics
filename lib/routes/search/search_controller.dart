@@ -1,27 +1,59 @@
 // lib/routes/search/search_controller.dart
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+import 'package:japanese_lyrics_app/constants/api_base_url.dart';
+
 import '../../models/song.dart';
 
-/// Funkce simuluje načítání dat z API (zatím vrací mockup data).
+/// vyhledání písní podle keyword z API
 Future<List<Song>> fetchSongs(String query) async {
-  // Simulace latence (např. volání API)
-  await Future.delayed(const Duration(seconds: 1));
-  
-  // Návrat statických dat – později bude nahrazeno voláním Musicmatch API.
-  return [
-    Song(
-      title: 'Song A',
-      artist: 'Artist A',
-      lyrics: ['Řádek 1', 'Řádek 2', 'Řádek 3'],
-    ),
-    Song(
-      title: 'Song B',
-      artist: 'Artist B',
-      lyrics: ['Verš A', 'Verš B'],
-    ),
-    Song(
-      title: 'Song C',
-      artist: 'Artist C',
-      lyrics: ['První verš', 'Druhý verš'],
-    ),
-  ];
+
+  final encodedQuery = Uri.encodeComponent(query);
+  final url = '$apiBaseUrl/search?query=$encodedQuery';
+
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load search results');
+    }
+
+    // parse and save results
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final List<dynamic> jsonData = data['results'];
+    final songs = jsonData.map((json) => Song(
+      title: json['title'],
+      artist: json['artist'],
+      lyrics: [], // lyrics budou fetchnuty až při kliknutí
+      url: json['url'],
+    )).toList();
+    
+    return songs;
+    
+  } catch (e) {
+    print('Error fetching search results: $e');
+    rethrow;
+  }
+}
+
+/// vyhledání lyrics písně z API podle url
+Future<List<String>> fetchLyrics(String songUrl) async {
+  final encodedSongUrl = Uri.encodeComponent(songUrl);
+  final url = '$apiBaseUrl/lyrics?url=$encodedSongUrl';
+
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load search results');
+    }
+
+    // parse and save results
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final List<String> lyrics = List<String>.from(data['lyrics']);    
+    return lyrics;
+    
+  } catch (e) {
+    print('Error fetching lyrics: $e');
+    rethrow;
+  }
 }

@@ -20,19 +20,22 @@ class SongAdapter extends TypeAdapter<Song> {
       title: fields[0] as String,
       artist: fields[1] as String,
       lyrics: (fields[2] as List).cast<String>(),
+      url: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Song obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
       ..write(obj.artist)
       ..writeByte(2)
-      ..write(obj.lyrics);
+      ..write(obj.lyrics)
+      ..writeByte(3)
+      ..write(obj.url);
   }
 
   @override

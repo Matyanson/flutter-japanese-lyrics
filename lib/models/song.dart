@@ -11,11 +11,15 @@ class Song {
   final String artist;
 
   @HiveField(2)
-  final List<String> lyrics;
+  List<String> lyrics;
+
+  @HiveField(3)
+  final String url;
 
   Song({
     required this.title,
     required this.artist,
     required this.lyrics,
+    required this.url
   });
 }
