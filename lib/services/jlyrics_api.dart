@@ -19,6 +19,7 @@ Future<List<Song>> fetchSongs(String query) async {
     final Map<String, dynamic> data = jsonDecode(response.body);
     final List<dynamic> jsonSongs = data['results'];
     final songs = jsonSongs.map((songData) => Song(
+      id: songData['id'],
       title: songData['title'],
       artist: songData['artist'],
       lyrics: [], // lyrics budou fetchnuty až při kliknutí

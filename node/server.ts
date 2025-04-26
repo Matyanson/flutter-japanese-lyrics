@@ -2,10 +2,21 @@ import express from 'express';
 import * as cheerio from 'cheerio';
 import cors from 'cors';
 
+type Song = { id: string, title: string; artist: string; url: string }
+
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
+
+function getId(title: string, artist: string, url: string): string {
+  const match = url.match(/artist\/([^/]+)\/([^/.]+)\.html/);
+  if (match) {
+    return `${match[1]}/${match[2]}`;
+  } else {
+    return `${title}/${artist}`;
+  }
+}
 
 app.get('/search', async (req, res) => {
   const query = req.query.query as string;
@@ -21,14 +32,16 @@ app.get('/search', async (req, res) => {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    const results: { title: string; artist: string; url: string }[] = [];
+    const results: Song[] = [];
 
     $('#lyricList > .body').each((_, el) => {
       const title = $(el).find('.title a').text().trim();
       const artist = $(el).find('.status a').text().trim();
       const url = 'https://j-lyric.net' + $(el).find('.title a').attr('href');
+
       if (title && artist && url) {
-        results.push({ title, artist, url });
+        const id = getId(title, artist, url);
+        results.push({ id, title, artist, url });
       }
     });
 

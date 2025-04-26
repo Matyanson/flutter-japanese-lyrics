@@ -5,18 +5,22 @@ part 'song.g.dart'; // Tento soubor se vygeneruje pomocí build_runner
 @HiveType(typeId: 0)
 class Song {
   @HiveField(0)
-  final String title;
+  final String id;
 
   @HiveField(1)
-  final String artist;
+  final String title;
 
   @HiveField(2)
-  List<String> lyrics;
+  final String artist;
 
   @HiveField(3)
+  List<String> lyrics;
+
+  @HiveField(4)
   final String url;
 
   Song({
+    required this.id,
     required this.title,
     required this.artist,
     required this.lyrics,
@@ -24,6 +28,6 @@ class Song {
   });
 
   Song copyWithDetails(List<String> lyrics) {
-    return Song(title: title, artist: artist, lyrics: lyrics, url: url);
+    return Song(id: id, title: title, artist: artist, lyrics: lyrics, url: url);
   }
 }

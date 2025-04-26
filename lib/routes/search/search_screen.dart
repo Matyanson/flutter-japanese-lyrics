@@ -17,9 +17,9 @@ class SearchScreen extends ConsumerWidget {
       await ref.read(searchResultsProvider.notifier).searchSongs(query);
     }
 
-    void _onSongTap(int index) async {
+    void _onSongTap(String id) async {
       // vyhledání detailů písně
-      final fullSong = await ref.read(searchResultsProvider.notifier).expandSongDetails(index);
+      final fullSong = await ref.read(searchResultsProvider.notifier).expandSongDetails(id);
 
       if(fullSong == null) return;
 
@@ -67,7 +67,7 @@ class SearchScreen extends ConsumerWidget {
                         final song = songs[index];
                         return SongTile(
                           song: song,
-                          onTap: () => _onSongTap(index),
+                          onTap: () => _onSongTap(song.id),
                         );
                       },
                     );

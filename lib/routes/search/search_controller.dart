@@ -23,11 +23,14 @@ class SearchResultsNotifier extends AsyncNotifier<List<Song>> {
   }
 
   /// přidání detailů písně
-  Future<Song?> expandSongDetails(int index) async {
+  Future<Song?> expandSongDetails(String id) async {
     final songs = state.value;
     if (songs == null) {
       throw Exception('Cannot expand song details: not ready');
     }
+
+    final index = songs.indexWhere((s) => s.id == id);
+    if (index == -1) throw Exception('Error expanding details: Song not found');
 
     try {
       final song = songs[index];
