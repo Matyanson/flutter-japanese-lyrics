@@ -11,7 +11,7 @@ class HiveRepository {
   /// Přidá píseň do knihovny.
   Future<void> addSong(Song song) async {
     final box = getLibraryBox();
-    await box.add(song);
+    await box.put(song.id, song);
   }
 
   /// Vrátí všechny uložené písně.

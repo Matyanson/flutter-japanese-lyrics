@@ -11,11 +11,11 @@ class LibraryScreen extends StatelessWidget {
     // Otevřeme již dříve inicializovaný box s názvem 'library'
     final box = Hive.box<Song>('library');
 
-    void onSongPressed(int index) {
+    void onSongPressed(String id) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => SongScreen(songIndex: index),
+          builder: (_) => SongScreen(songId: id),
         ),
       );
     }
@@ -43,7 +43,7 @@ class LibraryScreen extends StatelessWidget {
                 onTap: () {
                   // Zde můžeš přidat přechod do detailu písně či další logiku.
                   print('Vybrána píseň: ${song.title}');
-                  onSongPressed(index);
+                  onSongPressed(song.id);
                 },
               );
             },
