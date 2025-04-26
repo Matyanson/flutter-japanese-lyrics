@@ -1,58 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/song_tile.dart';
-import '../../models/song.dart';
 import 'search_controller.dart';
 import '../../database/hive_repository.dart';
 import '../library/library_screen.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final results = ref.watch(searchResultsProvider);
 
-class _SearchScreenState extends State<SearchScreen> {
-  List<Song> searchResults = [];
-  bool isLoading = false;
+    void _performSearch(String query) async {
+      await ref.read(searchResultsProvider.notifier).searchSongs(query);
+    }
 
-  void _performSearch(String query) async {
-    setState(() {
-      isLoading = true;
-    });
+    void _onSongTap(int index) async {
+      // vyhledání detailů písně
+      final fullSong = await ref.read(searchResultsProvider.notifier).expandSongDetails(index);
 
-    // Načtení písniček pomocí controlleru
-    final results = await fetchSongs(query);
-    setState(() {
-      searchResults = results;
-      isLoading = false;
-    });
-  }
+      if(fullSong == null) return;
 
-  void _onSongTap(Song song) async {
-    // vyhledání detailů písně
-    final lyrics = await fetchLyrics(song.url);
-    song.lyrics = lyrics;
+      // Uložení vybrané písně do lokální knihovny pomocí HiveRepository
+      final repository = HiveRepository();
+      await repository.addSong(fullSong);
+      
+      if (context.mounted) {
+        // Zobrazíme potvrzovací zprávu
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Píseň "${fullSong.title}" byla přidána do knihovny.')),
+        );
 
-    // Uložení vybrané písně do lokální knihovny pomocí HiveRepository
-    final repository = HiveRepository();
-    await repository.addSong(song);
+        // Přejdeme na stránku knihovny
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LibraryScreen()),
+        );
+      }
+    }
 
-    // Zobrazíme potvrzovací zprávu
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Píseň "${song.title}" byla přidána do knihovny.')),
-    );
 
-    // Přejdeme na stránku knihovny
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const LibraryScreen()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('検索 - Japanese Lyrics'),
@@ -66,20 +55,24 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : searchResults.isEmpty
-                    ? const Center(child: Text('Zadejte název písně pro vyhledávání...'))
-                    : ListView.builder(
-                        itemCount: searchResults.length,
-                        itemBuilder: (context, index) {
-                          final song = searchResults[index];
-                          return SongTile(
-                            song: song,
-                            onTap: () => _onSongTap(song),
-                          );
-                        },
-                      ),
+            child: results.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => Center(child: Text('Chyba: $err')),
+              data: (songs) {
+                return songs.isEmpty
+                  ? const Center(child: Text('Zadejte název písně pro vyhledávání...'))
+                  : ListView.builder(
+                      itemCount: songs.length,
+                      itemBuilder: (context, index) {
+                        final song = songs[index];
+                        return SongTile(
+                          song: song,
+                          onTap: () => _onSongTap(index),
+                        );
+                      },
+                    );
+              }
+            )
           ),
         ],
       ),

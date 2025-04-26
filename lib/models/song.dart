@@ -22,4 +22,8 @@ class Song {
     required this.lyrics,
     required this.url
   });
+
+  Song copyWithDetails(List<String> lyrics) {
+    return Song(title: title, artist: artist, lyrics: lyrics, url: url);
+  }
 }

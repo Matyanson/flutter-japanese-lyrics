@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:japanese_lyrics_app/components/main_scaffold.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,7 @@ void main() async {
   // Otevření boxu
   await Hive.openBox<Song>('library');
   
-  runApp(const JapLyricsApp());
+  runApp(ProviderScope(child: JapLyricsApp()));
 }
 
 class JapLyricsApp extends StatelessWidget {

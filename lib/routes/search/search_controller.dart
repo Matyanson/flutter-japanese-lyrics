@@ -1,59 +1,46 @@
 // lib/routes/search/search_controller.dart
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-import 'package:japanese_lyrics_app/constants/api_base_url.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:japanese_lyrics_app/services/jlyrics_api.dart';
 import '../../models/song.dart';
 
-/// vyhledání písní podle keyword z API
-Future<List<Song>> fetchSongs(String query) async {
+final searchResultsProvider = AsyncNotifierProvider<SearchResultsNotifier, List<Song>>(SearchResultsNotifier.new);
 
-  final encodedQuery = Uri.encodeComponent(query);
-  final url = '$apiBaseUrl/search?query=$encodedQuery';
-
-  try {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load search results');
-    }
-
-    // parse and save results
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final List<dynamic> jsonData = data['results'];
-    final songs = jsonData.map((json) => Song(
-      title: json['title'],
-      artist: json['artist'],
-      lyrics: [], // lyrics budou fetchnuty až při kliknutí
-      url: json['url'],
-    )).toList();
-    
-    return songs;
-    
-  } catch (e) {
-    print('Error fetching search results: $e');
-    rethrow;
+class SearchResultsNotifier extends AsyncNotifier<List<Song>> {
+  @override
+  Future<List<Song>> build() async {
+    return []; // Počáteční stav je prázdný seznam
   }
-}
 
-/// vyhledání lyrics písně z API podle url
-Future<List<String>> fetchLyrics(String songUrl) async {
-  final encodedSongUrl = Uri.encodeComponent(songUrl);
-  final url = '$apiBaseUrl/lyrics?url=$encodedSongUrl';
+  /// vyhledání písní podle keyword z API
+  Future<void> searchSongs(String query) async {
+    try{
+      final songs = await fetchSongs(query);
+      state = AsyncData(songs);
+      
+    } catch (e) {
+      state = AsyncError('Error fetching search results: $e', StackTrace.current);
+    }
+  }
 
-  try {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load search results');
+  /// přidání detailů písně
+  Future<Song?> expandSongDetails(int index) async {
+    final songs = state.value;
+    if (songs == null) {
+      throw Exception('Cannot expand song details: not ready');
     }
 
-    // parse and save results
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final List<String> lyrics = List<String>.from(data['lyrics']);    
-    return lyrics;
-    
-  } catch (e) {
-    print('Error fetching lyrics: $e');
-    rethrow;
+    try {
+      final song = songs[index];
+      final lyrics = await fetchLyrics(song.url);
+      final fullSong = song.copyWithDetails(lyrics);
+      final updatedSongs = [...songs];
+      updatedSongs[index] = fullSong;
+      state = AsyncData(updatedSongs);
+
+      return fullSong;
+    } catch (e) {
+      print('Error fetching lyrics: ${e}');
+    }
+    return null;
   }
 }
