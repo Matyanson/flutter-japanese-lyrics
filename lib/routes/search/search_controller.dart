@@ -31,9 +31,11 @@ class SearchResultsNotifier extends AsyncNotifier<List<Song>> {
 
     final index = songs.indexWhere((s) => s.id == id);
     if (index == -1) throw Exception('Error expanding details: Song not found');
+    
+    final song = songs[index];
+    if(song.lyrics.isNotEmpty) return song;
 
     try {
-      final song = songs[index];
       final lyrics = await fetchLyrics(song.url);
       final fullSong = song.copyWithDetails(lyrics);
       final updatedSongs = [...songs];

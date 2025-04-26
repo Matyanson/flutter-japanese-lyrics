@@ -5,8 +5,14 @@ import '../models/song.dart';
 class SongTile extends StatelessWidget {
   final Song song;
   final VoidCallback onTap;
+  final VoidCallback onAdd;
 
-  const SongTile({super.key, required this.song, required this.onTap});
+  const SongTile({
+    super.key,
+    required this.song,
+    required this.onTap,
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +20,10 @@ class SongTile extends StatelessWidget {
       title: Text(song.title),
       subtitle: Text(song.artist),
       onTap: onTap,
-      trailing: const Icon(Icons.arrow_forward),
+      trailing: IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: onAdd,
+      ),
     );
   }
 }

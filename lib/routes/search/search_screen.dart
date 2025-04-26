@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:japanese_lyrics_app/routes/song/song_screen.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/song_tile.dart';
 import 'search_controller.dart';
@@ -13,11 +14,24 @@ class SearchScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(searchResultsProvider);
 
-    void _performSearch(String query) async {
+    void performSearch(String query) async {
       await ref.read(searchResultsProvider.notifier).searchSongs(query);
     }
 
-    void _onSongTap(String id) async {
+    void onSongTap(String id) async {
+      // vyhledání detailů písně
+      ref.read(searchResultsProvider.notifier).expandSongDetails(id);
+
+      // otevřít song detail
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SongScreen(songId: id),
+        ),
+      );
+    }
+
+    void onSongAdd(String id) async {
       // vyhledání detailů písně
       final fullSong = await ref.read(searchResultsProvider.notifier).expandSongDetails(id);
 
@@ -51,7 +65,7 @@ class SearchScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: CustomSearchBar(
-              onSearch: _performSearch,
+              onSearch: performSearch,
             ),
           ),
           Expanded(
@@ -67,7 +81,8 @@ class SearchScreen extends ConsumerWidget {
                         final song = songs[index];
                         return SongTile(
                           song: song,
-                          onTap: () => _onSongTap(song.id),
+                          onTap: () => onSongTap(song.id),
+                          onAdd: () => onSongAdd(song.id),
                         );
                       },
                     );
