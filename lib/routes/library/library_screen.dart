@@ -12,6 +12,7 @@ class LibraryScreen extends StatelessWidget {
     final box = Hive.box<Song>('library');
 
     void onSongPressed(String id) {
+      print('Id Songy: $id');
       Navigator.push(
         context,
         MaterialPageRoute(

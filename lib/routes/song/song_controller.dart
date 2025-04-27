@@ -6,15 +6,22 @@ import 'package:japanese_lyrics_app/routes/search/search_controller.dart' show s
 
 
 final songProvider = FutureProvider.family<Song?, String>((ref, id) async {
+  print('entered songProvider: $id');
+  final libraryBox = Hive.box<Song>('library');
+  final songInLibrary =  libraryBox.get(id);
+  
+  print('Id in song_controller1: $id');
+
+  if (songInLibrary != null) {
+    return songInLibrary;
+  }
+
   final searchResults = ref.watch(searchResultsProvider);
   final songInProvider = searchResults.whenOrNull(
     data: (songs) => songs.firstWhereOrNull((s) => s.id == id),
   );
+  
+  print('Id in song_controller2: $id');
 
-  if (songInProvider != null) {
-    return songInProvider;
-  }
-
-  final libraryBox = Hive.box<Song>('library');
-  return libraryBox.get(id);
+  return songInProvider;  
 });

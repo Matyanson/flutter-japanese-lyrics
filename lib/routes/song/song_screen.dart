@@ -1,6 +1,7 @@
 // lib/routes/song/song_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:japanese_lyrics_app/database/hive_repository.dart';
 import 'package:japanese_lyrics_app/routes/song/song_controller.dart';
 
 class SongScreen extends ConsumerWidget {
@@ -11,6 +12,7 @@ class SongScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final songAsync = ref.watch(songProvider(songId));
+    final library = HiveRepository();
 
     return Scaffold(
       appBar: AppBar(),
@@ -22,6 +24,20 @@ class SongScreen extends ConsumerWidget {
             return const Center(child: Text('Song not found'));
           }
           final hasLyrics = song.lyrics.isNotEmpty;
+          final isSongInLibrary = library.getLibraryBox().containsKey(song.id);
+
+          void removeFromLibrary() {
+            library.removeSong(songId);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Píseň "${song.title}" byla odebrána z knihovny.')),
+            );
+          }
+          void addToLibrary() {
+            library.addSong(song);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Píseň "${song.title}" byla přidána do knihovny.')),
+            );
+          }
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -42,6 +58,10 @@ class SongScreen extends ConsumerWidget {
                     },
                   ),
                 ),
+                if(hasLyrics) FloatingActionButton(
+                  onPressed: isSongInLibrary ? removeFromLibrary : addToLibrary,
+                  child: Icon(isSongInLibrary ? Icons.delete : Icons.add),
+                )
               ],
             ),
           );

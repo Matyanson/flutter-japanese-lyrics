@@ -14,6 +14,7 @@ class SearchResultsNotifier extends AsyncNotifier<List<Song>> {
   /// vyhledání písní podle keyword z API
   Future<void> searchSongs(String query) async {
     try{
+      state = AsyncLoading();
       final songs = await fetchSongs(query);
       state = AsyncData(songs);
       

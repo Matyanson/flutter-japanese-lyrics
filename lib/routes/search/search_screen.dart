@@ -13,8 +13,10 @@ class SearchScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(searchResultsProvider);
+    final library = HiveRepository();
 
     void performSearch(String query) async {
+      print('start loading!');
       await ref.read(searchResultsProvider.notifier).searchSongs(query);
     }
 
@@ -79,10 +81,11 @@ class SearchScreen extends ConsumerWidget {
                       itemCount: songs.length,
                       itemBuilder: (context, index) {
                         final song = songs[index];
+                        final isSongInLibrary = library.getLibraryBox().containsKey(song.id);
                         return SongTile(
                           song: song,
                           onTap: () => onSongTap(song.id),
-                          onAdd: () => onSongAdd(song.id),
+                          onAdd: isSongInLibrary ? null : () => onSongAdd(song.id),
                         );
                       },
                     );

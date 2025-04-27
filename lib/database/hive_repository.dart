@@ -14,6 +14,12 @@ class HiveRepository {
     await box.put(song.id, song);
   }
 
+  /// Odebere píseň z knihovny.
+  Future<void> removeSong(String id) async {
+    final box = getLibraryBox();
+    await box.delete(id);
+  }
+
   /// Vrátí všechny uložené písně.
   List<Song> getAllSongs() {
     final box = getLibraryBox();

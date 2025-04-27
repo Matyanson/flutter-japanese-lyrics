@@ -5,7 +5,7 @@ import '../models/song.dart';
 class SongTile extends StatelessWidget {
   final Song song;
   final VoidCallback onTap;
-  final VoidCallback onAdd;
+  final VoidCallback? onAdd;
 
   const SongTile({
     super.key,
@@ -20,10 +20,13 @@ class SongTile extends StatelessWidget {
       title: Text(song.title),
       subtitle: Text(song.artist),
       onTap: onTap,
-      trailing: IconButton(
+      trailing: 
+      onAdd != null
+      ? IconButton(
         icon: const Icon(Icons.add),
         onPressed: onAdd,
-      ),
+      )
+      : Icon(Icons.arrow_forward),
     );
   }
 }
