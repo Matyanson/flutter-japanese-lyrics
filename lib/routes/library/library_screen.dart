@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:japanese_lyrics_app/routes/practice/practice_screen.dart';
 import '../../models/song.dart';
 import 'package:japanese_lyrics_app/routes/song/song_screen.dart';
 
@@ -17,6 +18,16 @@ class LibraryScreen extends StatelessWidget {
         context,
         MaterialPageRoute(
           builder: (_) => SongScreen(songId: id),
+        ),
+      );
+    }
+
+    void onSongBegin(String id) {
+      print('Practice song: $id');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PracticeScreen(songId: id),
         ),
       );
     }
@@ -40,7 +51,10 @@ class LibraryScreen extends StatelessWidget {
               return ListTile(
                 title: Text(song.title),
                 subtitle: Text(song.artist),
-                trailing: const Icon(Icons.arrow_forward),
+                trailing: IconButton(
+                  icon: const Icon(Icons.play_arrow),
+                  onPressed: () => onSongBegin(song.id),
+                ),
                 onTap: () {
                   // Zde můžeš přidat přechod do detailu písně či další logiku.
                   print('Vybrána píseň: ${song.title}');
