@@ -9,15 +9,18 @@ class PracticeController extends AsyncNotifier<Song> {
   late PracticeMode mode;
   int currentLineIndex = 0;
   int currentWordIndex = 0;
-  List<String> tokens = [];
+  List<String> words = [];
 
   @override
   Future<Song> build() async {
     // Inicializace probíhá až v loadSong()
-    throw UnimplementedError();
+    // throw UnimplementedError();
+
+    return Song(id: 'in', title: 'Placeholder', artist: 'placeholder', lyrics: ['lyrics'], url: 'url');
   }
 
   Future<void> loadSong(String id) async {
+    print('load song');
     final box = Hive.box<Song>('library');
     final song = box.get(id);
 
@@ -27,7 +30,7 @@ class PracticeController extends AsyncNotifier<Song> {
       mode = PracticeMode.meaning;
       currentLineIndex = 0;
       currentWordIndex = 0;
-      tokens = lineToTokens();
+      words = lineToTokens();
       state = AsyncData(song);
     }
   }
@@ -45,7 +48,7 @@ class PracticeController extends AsyncNotifier<Song> {
     final song = state.requireValue;
     if(currentLineIndex + 1 < song.lyrics.length) {
       currentLineIndex++;
-      tokens = lineToTokens();
+      words = lineToTokens();
       currentWordIndex = 0;
     }
   }
@@ -53,15 +56,13 @@ class PracticeController extends AsyncNotifier<Song> {
   void previousLine() {
     if (currentLineIndex > 0) {
       currentLineIndex--;
-      tokens = lineToTokens();
-      currentWordIndex = tokens.length - 1;
+      words = lineToTokens();
+      currentWordIndex = words.length - 1;
     }
   }
 
   void nextWord() {
     final song = state.requireValue;
-    final line = song.lyrics[currentLineIndex];
-    final words = line.split(' '); // nebo jiná logika dělení slov
     if (currentWordIndex + 1 < words.length) {
       currentWordIndex++;
     } else {
@@ -84,8 +85,6 @@ class PracticeController extends AsyncNotifier<Song> {
   }
 
   String get currentWord {
-    final line = currentLine;
-    final words = line.split(' '); // opět, můžeš později udělat lepší split
     if (currentWordIndex < words.length) {
       return words[currentWordIndex];
     } else {
