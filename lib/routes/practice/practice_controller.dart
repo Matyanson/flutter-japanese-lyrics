@@ -9,6 +9,7 @@ class PracticeController extends AsyncNotifier<Song> {
   late PracticeMode mode;
   int currentLineIndex = 0;
   int currentWordIndex = 0;
+  List<String> tokens = [];
 
   @override
   Future<Song> build() async {
@@ -26,13 +27,35 @@ class PracticeController extends AsyncNotifier<Song> {
       mode = PracticeMode.meaning;
       currentLineIndex = 0;
       currentWordIndex = 0;
+      tokens = lineToTokens();
       state = AsyncData(song);
     }
+  }
+
+  List<String> lineToTokens() {
+    return state.requireValue.lyrics[currentLineIndex].split(' ');
   }
 
   void changeMode(PracticeMode newMode) {
     mode = newMode;
     state = AsyncData(state.requireValue);
+  }
+
+  void nextLine() {
+    final song = state.requireValue;
+    if(currentLineIndex + 1 < song.lyrics.length) {
+      currentLineIndex++;
+      tokens = lineToTokens();
+      currentWordIndex = 0;
+    }
+  }
+
+  void previousLine() {
+    if (currentLineIndex > 0) {
+      currentLineIndex--;
+      tokens = lineToTokens();
+      currentWordIndex = tokens.length - 1;
+    }
   }
 
   void nextWord() {
@@ -41,9 +64,8 @@ class PracticeController extends AsyncNotifier<Song> {
     final words = line.split(' '); // nebo jiná logika dělení slov
     if (currentWordIndex + 1 < words.length) {
       currentWordIndex++;
-    } else if (currentLineIndex + 1 < song.lyrics.length) {
-      currentLineIndex++;
-      currentWordIndex = 0;
+    } else {
+      nextLine();
     }
     state = AsyncData(song);
   }
@@ -51,9 +73,8 @@ class PracticeController extends AsyncNotifier<Song> {
   void previousWord() {
     if (currentWordIndex > 0) {
       currentWordIndex--;
-    } else if (currentLineIndex > 0) {
-      currentLineIndex--;
-      currentWordIndex = state.requireValue.lyrics[currentLineIndex].split(' ').length - 1;
+    } else {
+      previousLine();
     }
     state = AsyncData(state.requireValue);
   }

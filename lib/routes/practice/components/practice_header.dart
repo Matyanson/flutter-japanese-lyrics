@@ -15,9 +15,11 @@ class PracticeHeader extends ConsumerWidget {
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity! > 0) {
           // Pokud je posun doprava, jdeme na předchozí slovo
+          print('previous word');
           controller.previousWord();
         } else if (details.primaryVelocity! < 0) {
           // Pokud je posun doleva, jdeme na další slovo
+          print('next word');
           controller.nextWord();
         }
       },
