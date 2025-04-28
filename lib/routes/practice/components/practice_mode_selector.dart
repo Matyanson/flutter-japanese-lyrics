@@ -14,13 +14,23 @@ class PracticeModeSelector extends ConsumerWidget {
 
     return BottomNavigationBar(
       currentIndex: controller.mode.index,
+      type: BottomNavigationBarType.fixed,
       onTap: (index) {
-        controller.changeMode(PracticeMode.values[index]);
+        if (index == 3) {
+          controller.previousWord();
+        }
+        if (index == 4) {
+          controller.nextWord();
+        } else {
+          controller.changeMode(PracticeMode.values[index]);
+        }
       },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.translate), label: 'Meaning'),
         BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Handwriting'),
         BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Image'),
+        BottomNavigationBarItem(icon: Icon(Icons.skip_previous), label: 'Previous'),
+        BottomNavigationBarItem(icon: Icon(Icons.skip_next), label: 'Next'),
       ],
     );
   }
