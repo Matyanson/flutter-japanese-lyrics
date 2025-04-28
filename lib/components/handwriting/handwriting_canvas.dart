@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Ink;
 import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart';
+import 'package:japanese_lyrics_app/components/handwriting/handwriting_canvas_controller.dart';
 
 class HandwritingRecognizer extends StatefulWidget {
   final void Function(List<String> predictions) onPrediction;
+  final CanvasController? controller;
 
-  const HandwritingRecognizer({super.key, required this.onPrediction});
+  const HandwritingRecognizer({super.key, required this.onPrediction, this.controller});
 
   @override
   State<HandwritingRecognizer> createState() => _HandwritingRecognizerState();
@@ -22,6 +24,7 @@ class _HandwritingRecognizerState extends State<HandwritingRecognizer> {
   void initState() {
     super.initState();
     _recognizer = DigitalInkRecognizer(languageCode: 'ja'); // Japanese model
+    widget.controller?.clearCallback = _clear;
     _downloadModel();
   }
 
