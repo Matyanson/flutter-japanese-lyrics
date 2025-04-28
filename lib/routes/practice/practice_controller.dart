@@ -52,8 +52,7 @@ Future<Song> build(String id) async {
     print(line);
 
     final tokens = ringo.tokenize(line);
-    tokens.removeWhere((t) => t.isEmpty);
-    print(tokens);
+    tokens.removeWhere((t) => t.trim().isEmpty);
     if(tokens.length <= 1) {
       return line.split(' ');
     }
