@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -14,9 +16,16 @@ void main() async {
 
   // Registrace adapteru
   Hive.registerAdapter(SongAdapter());
+
+  // // 🔥 Smazat starý uložený soubor
+  // final libraryFile = File('${appDocDir.path}/library.hive');
+  // if (await libraryFile.exists()) {
+  //   await libraryFile.delete();
+  // }
   
   // Otevření boxu
   await Hive.openBox<Song>('library');
+  // await Hive.box('library').clear();
   
   runApp(ProviderScope(child: JapLyricsApp()));
 }
@@ -26,6 +35,9 @@ class JapLyricsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+
+
     return MaterialApp(
       title: 'Japanese Lyrics App',
       theme: ThemeData(
