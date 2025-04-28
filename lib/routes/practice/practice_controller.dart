@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:japanese_lyrics_app/models/practice_mode.dart';
 import 'package:japanese_lyrics_app/models/song.dart';
 import 'package:japanese_lyrics_app/services/mecab.dart';
+import 'package:japanese_lyrics_app/services/voicevox_service.dart';
 import 'package:ringo/ringo.dart';
 
 final practiceControllerProvider = AsyncNotifierProviderFamily<PracticeController, Song, String>(
@@ -12,6 +13,7 @@ final practiceControllerProvider = AsyncNotifierProviderFamily<PracticeControlle
 class PracticeController extends FamilyAsyncNotifier<Song, String> {
   late MecabController mecabController;
   late Ringo ringo;
+  late VoiceVoxService voiceVoxService;
   late PracticeMode mode;
   late Song song;
   int currentLineIndex = 0;
@@ -30,6 +32,7 @@ Future<Song> build(String id) async {
   // Wait until mecabProvider finishes loading
   ringo = await Ringo.init();
   await ref.read(mecabProvider.future);
+  voiceVoxService = VoiceVoxService();
 
   mecabController = ref.read(mecabProvider.notifier);
 
@@ -38,6 +41,7 @@ Future<Song> build(String id) async {
   currentWordIndex = 0;
   this.song = song;
   words = await lineToTokens();
+  readCurrentWord();
 
   return song;
 }
@@ -83,22 +87,30 @@ Future<Song> build(String id) async {
     }
   }
 
-  void nextWord() {
+  Future<void> nextWord() async {
     if (currentWordIndex + 1 < words.length) {
       currentWordIndex++;
     } else {
       nextLine();
     }
+
+    readCurrentWord();
     state = AsyncData(song);
   }
 
-  void previousWord() {
+  void previousWord() async {
     if (currentWordIndex > 0) {
       currentWordIndex--;
     } else {
       previousLine();
     }
+
+    readCurrentWord();
     state = AsyncData(song);
+  }
+
+  void readCurrentWord() async {
+    await voiceVoxService.speak(currentWord);
   }
 
   String get currentLine {

@@ -41,7 +41,7 @@ class JapLyricsApp extends StatelessWidget {
     return MaterialApp(
       title: 'Japanese Lyrics App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
         useMaterial3: true,
       ),
       home: const MainScaffold(),
