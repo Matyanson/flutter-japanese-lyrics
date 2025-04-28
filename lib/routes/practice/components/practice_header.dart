@@ -4,11 +4,13 @@ import 'package:japanese_lyrics_app/routes/practice/practice_controller.dart';
 
 
 class PracticeHeader extends ConsumerWidget {
-  const PracticeHeader({super.key});
+  final String songId;
+
+  const PracticeHeader({super.key, required this.songId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(practiceControllerProvider.notifier);
+    final controller = ref.watch(practiceControllerProvider(songId).notifier);
 
     // GestureDetector pro detekci horizontálního scrollování
     return GestureDetector(

@@ -3,49 +3,46 @@ import 'package:hive/hive.dart';
 import 'package:japanese_lyrics_app/models/practice_mode.dart';
 import 'package:japanese_lyrics_app/models/song.dart';
 
-final practiceControllerProvider = AsyncNotifierProvider<PracticeController, Song>(PracticeController.new);
+final practiceControllerProvider = AsyncNotifierProviderFamily<PracticeController, Song, String>(
+  PracticeController.new
+);
 
-class PracticeController extends AsyncNotifier<Song> {
+class PracticeController extends FamilyAsyncNotifier<Song, String> {
   late PracticeMode mode;
+  late Song song;
   int currentLineIndex = 0;
   int currentWordIndex = 0;
   List<String> words = [];
 
   @override
-  Future<Song> build() async {
-    // Inicializace probíhá až v loadSong()
-    // throw UnimplementedError();
-
-    return Song(id: 'in', title: 'Placeholder', artist: 'placeholder', lyrics: ['lyrics'], url: 'url');
-  }
-
-  Future<void> loadSong(String id) async {
+  Future<Song> build(String id) async {
     print('load song');
     final box = Hive.box<Song>('library');
     final song = box.get(id);
 
     if (song == null) {
-      state = const AsyncError('Song not found', StackTrace.empty);
-    } else {
-      mode = PracticeMode.meaning;
-      currentLineIndex = 0;
-      currentWordIndex = 0;
-      words = lineToTokens();
-      state = AsyncData(song);
+      throw Exception('Song not found');
     }
+
+    mode = PracticeMode.meaning;
+    currentLineIndex = 0;
+    currentWordIndex = 0;
+    this.song = song;
+    words = lineToTokens();
+
+    return song;
   }
 
   List<String> lineToTokens() {
-    return state.requireValue.lyrics[currentLineIndex].split(' ');
+    return song.lyrics[currentLineIndex].split(' ');
   }
 
   void changeMode(PracticeMode newMode) {
     mode = newMode;
-    state = AsyncData(state.requireValue);
+    state = AsyncData(song);
   }
 
   void nextLine() {
-    final song = state.requireValue;
     if(currentLineIndex + 1 < song.lyrics.length) {
       currentLineIndex++;
       words = lineToTokens();
@@ -62,7 +59,6 @@ class PracticeController extends AsyncNotifier<Song> {
   }
 
   void nextWord() {
-    final song = state.requireValue;
     if (currentWordIndex + 1 < words.length) {
       currentWordIndex++;
     } else {
@@ -77,11 +73,11 @@ class PracticeController extends AsyncNotifier<Song> {
     } else {
       previousLine();
     }
-    state = AsyncData(state.requireValue);
+    state = AsyncData(song);
   }
 
   String get currentLine {
-    return state.requireValue.lyrics[currentLineIndex];
+    return song.lyrics[currentLineIndex];
   }
 
   String get currentWord {

@@ -4,11 +4,13 @@ import 'package:japanese_lyrics_app/models/practice_mode.dart';
 import 'package:japanese_lyrics_app/routes/practice/practice_controller.dart';
 
 class PracticeContent extends ConsumerWidget {
-  const PracticeContent({super.key});
+  final String songId;
+
+  const PracticeContent({super.key, required this.songId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(practiceControllerProvider.notifier);
+    final controller = ref.watch(practiceControllerProvider(songId).notifier);
 
     switch (controller.mode) {
       case PracticeMode.meaning:

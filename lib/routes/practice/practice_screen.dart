@@ -15,15 +15,10 @@ class PracticeScreen extends ConsumerStatefulWidget {
 }
 
 class _PracticeScreenState extends ConsumerState<PracticeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    ref.read(practiceControllerProvider.notifier).loadSong(widget.songId);
-  }
-
+  
   @override
   Widget build(BuildContext context) {
-    final songState = ref.watch(practiceControllerProvider);
+    final songState = ref.watch(practiceControllerProvider(widget.songId));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Practice')),
@@ -33,12 +28,12 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
         data: (song) => Column(
           children: [
             Expanded(
-              child: PracticeHeader() // věta a slovo
+              child: PracticeHeader(songId:  widget.songId) // věta a slovo
             ),
             Expanded(
-              child: PracticeContent(), // mění se podle módu
+              child: PracticeContent(songId: widget.songId), // mění se podle módu
             ),
-            PracticeModeSelector(), // menu dole
+            PracticeModeSelector(songId: widget.songId), // menu dole
           ],
         ),
       ),
