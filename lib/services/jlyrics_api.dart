@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:japanese_lyrics_app/constants/api_base_url.dart';
+import 'package:japanese_lyrics_app/constants/url.dart';
 import 'package:japanese_lyrics_app/models/song.dart';
 
 /// vyhledání písní podle keyword z API
 Future<List<Song>> fetchSongs(String query) async {
 
   final encodedQuery = Uri.encodeComponent(query);
-  final url = '$apiBaseUrl/search?query=$encodedQuery';
+  final url = '$jLyricsBaseUrl/search?query=$encodedQuery';
 
   try {
     final response = await http.get(Uri.parse(url));
@@ -36,7 +36,7 @@ Future<List<Song>> fetchSongs(String query) async {
 /// vyhledání lyrics písně z API podle url
 Future<List<String>> fetchLyrics(String songUrl) async {
   final encodedSongUrl = Uri.encodeComponent(songUrl);
-  final url = '$apiBaseUrl/lyrics?url=$encodedSongUrl';
+  final url = '$jLyricsBaseUrl/lyrics?url=$encodedSongUrl';
 
   try {
     final response = await http.get(Uri.parse(url));
